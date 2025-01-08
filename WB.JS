@@ -1,65 +1,118 @@
-const regulators = document.querySelectorAll('.regulator');
 
-regulators.forEach((regulator) => {
-    let isDragging = false;
-    let startAngle = 0;
-    let currentAngle = 0;
 
-    const burnerIndex = regulator.dataset.burner - 1;
-    const flame = document.querySelectorAll('.waterColor')[burnerIndex];
+// const regulator = document.querySelector('.regulator');
+// const waterColor = document.querySelector('.waterColor');
+// const audio = document.getElementById('myAudio');
 
-    function updateFlame(angle) {
-        if (angle >= 0 && angle < 45) {
-            waterColor.style.display = 'none';
-        } else if (angle >= 45 && angle < 90) {
-            waterColor.style.display = 'block';
-            waterColor.style.height = '65px';
-            waterColor.style.width = '48px';
-        } else if (angle >= 90 && angle < 180) {
-            waterColor.style.display = 'block';
-            waterColor.style.height = '70px';
-            waterColor.style.width = '60px';
-        } else if (angle >= 360) {
-            waterColor.style.display = 'block';
-            waterColor.style.height = '77px';
-            waterColor.style.width = '77px';
+
+// let currentRotation = 0;
+
+
+// function handleWaterFlow(rotationDegree) {
+    
+//     let flowRate = Math.min(Math.max(rotationDegree / 360, 0), 1); 
+
+//     if (flowRate > 0) {
+//         waterColor.style.animationDuration = `${(1 - flowRate) * 20}s`;  e
+//         waterColor.style.opacity = flowRate;  
+        
+//     } else {
+//         waterColor.style.animationDuration = `0s`; 
+//         waterColor.style.opacity = 0; 
+       
+//     }
+// }
+// let isDragging = false;
+
+// regulator.addEventListener('mousedown', (e) => {
+//     isDragging = true;
+//     const startX = e.clientX;
+//     const startY = e.clientY;
+    
+//     const initialRotation = currentRotation;
+//     function onMouseMove(e) {
+//         if (!isDragging) return;
+
+//         const deltaX = e.clientX - startX;
+//         const deltaY = e.clientY - startY;
+//         const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+//         currentRotation = (initialRotation + angle) % 360;
+//         regulator.style.transform = `rotate(${currentRotation}deg)`;
+//         handleWaterFlow(currentRotation);
+//     }
+
+//     function onMouseUp() {
+//         isDragging = false;
+//         document.removeEventListener('mousemove', onMouseMove);
+//         document.removeEventListener('mouseup', onMouseUp);
+//     }
+
+//     document.addEventListener('mousemove', onMouseMove);
+//     document.addEventListener('mouseup', onMouseUp);
+// });
+
+
+// regulator.addEventListener('dragstart', (e) => {
+//     e.preventDefault();
+// });
+
+
+const regulator = document.querySelector('.regulator');
+const waterColor = document.querySelector('.waterColor');
+const audio = document.getElementById('myAudio');
+
+let currentRotation = 0;
+
+function handleWaterFlow(rotationDegree) {
+    let flowRate = Math.min(Math.max(rotationDegree / 360, 0), 1); 
+
+    if (flowRate > 0) {
+        waterColor.style.animationDuration = `${(1 - flowRate) * 20}s`;  
+        waterColor.style.opacity = flowRate;  
+
+        // Play the audio if not already playing
+        if (audio.paused) {
+            audio.play();
         }
+    } else {
+        waterColor.style.animationDuration = `0s`; 
+        waterColor.style.opacity = 0; 
+
+        // Pause the audio
+        audio.pause();
+    }
+}
+
+let isDragging = false;
+
+regulator.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    const startX = e.clientX;
+    const startY = e.clientY;
+    
+    const initialRotation = currentRotation;
+
+    function onMouseMove(e) {
+        if (!isDragging) return;
+
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+        currentRotation = (initialRotation + angle) % 360;
+        regulator.style.transform = `rotate(${currentRotation}deg)`;
+        handleWaterFlow(currentRotation);
     }
 
-    regulator.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        const rect = regulator.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const dx = e.clientX - centerX;
-        const dy = e.clientY - centerY;
-        startAngle = Math.atan2(dy, dx) * (180 / Math.PI);
-    });
+    function onMouseUp() {
+        isDragging = false;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+    }
 
-    document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-            const rect = regulator.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            const dx = e.clientX - centerX;
-            const dy = e.clientY - centerY;
-            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-            currentAngle = (angle - startAngle + 360) % 360;
-            currentAngle = Math.min(Math.max(currentAngle, 0), 180);
-            regulator.style.transform = rotate(${currentAngle}deg);
-            updateFlame(currentAngle);
-        }
-    });
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+});
 
-    document.addEventListener('mouseup', () => {
-        if (isDragging) {
-            isDragging = false;
-            if (currentAngle >= 135) {
-                setTimeout(() => {
-                    regulator.style.transform = 'rotate(0deg)';
-                    updateFlame(0);
-                }, 1000);
-            }
-        }
-    });
+regulator.addEventListener('dragstart', (e) => {
+    e.preventDefault();
 });
